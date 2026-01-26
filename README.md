@@ -4,7 +4,7 @@
 ## 🌍 Live Demo
 https://major-project-glow.onrender.com/
 
----
+
 ## 🚀 Features
 
 - User authentication (signup & login)
@@ -14,7 +14,7 @@ https://major-project-glow.onrender.com/
 - RESTful API integration
 - Secure backend with session-based authentication
   
---- 
+
 ## 🛠 Tech Stack
 
 **Frontend (Server-side)**
