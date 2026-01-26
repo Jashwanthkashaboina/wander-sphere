@@ -1,6 +1,6 @@
 # WanderSphere
 - A Full-Stack online hotel booking platform built using server-side rendering with EJS.  
-It allows users to explore hotels, view details
+- It allows users to explore hotels, view details, add reviews and provide ratings etc.
   
 ## 🌍 Live Demo
 https://major-project-glow.onrender.com/
