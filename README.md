@@ -6,7 +6,6 @@
 
 - User authentication (signup & login)
 - Browse hotels with detailed information
-- Booking workflow
 - Responsive UI
 - RESTful API integration
 - Secure backend with session-based authentication
