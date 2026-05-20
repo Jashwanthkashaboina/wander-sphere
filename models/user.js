@@ -8,7 +8,7 @@ const userSchema = new Schema({
         required: true
     },
     googleId: String,
-});
+},{ timestamps: true });
 
 userSchema.plugin(passportLocalMongoose);
 module.exports = mongoose.model("User",userSchema);

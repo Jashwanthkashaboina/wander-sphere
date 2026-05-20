@@ -7,6 +7,7 @@ const { savedRedirectUrl } = require("../middleware.js");
 const userController = require("../controllers/users.js");
 
 
+
 router.route("/signup")
     //To sign-in
     .get(userController.renderSignupForm)
@@ -42,6 +43,15 @@ router.get('/auth/google/callback',
         res.redirect('/listings');
     }
 );
+
+
+router.get('/profile', (req, res) =>{
+    if(!req.isAuthenticated()){
+        req.flash('error', 'You must be logged in!');
+        return res.redirect('/login');
+    }
+    return res.render('users/profile');
+})
 
 
 

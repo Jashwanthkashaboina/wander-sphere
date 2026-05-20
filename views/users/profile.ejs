@@ -1,0 +1,79 @@
+<% layout("/layouts/boilerplate") %>
+
+<div class="container mt-5">
+
+    <div class="row justify-content-center">
+
+        <div class="col-md-8">
+
+            <div class="card shadow-lg border-0 rounded-4 p-4">
+
+                <!-- Profile Header -->
+                <div class="text-center">
+
+                    <div 
+                        class="rounded-circle bg-dark text-white d-flex align-items-center justify-content-center mx-auto mb-3"
+                        style="width:100px; height:100px; font-size:2rem;"
+                    >
+                        <%= currUser.username.split("@")[0].charAt(0).toUpperCase() %>
+                    </div>
+
+                    <h2 class="fw-bold">
+                        <%= currUser.username.split('@')[0] %>
+                    </h2>
+
+                    <p class="text-muted">
+                        gmail: <%= currUser.email %>
+                    </p>
+
+                </div>
+
+                <hr>
+
+                <!-- Account Info -->
+                <div class="row text-center">
+
+                    <div class="col-md-4 mb-3">
+                        <h5 class="fw-bold">Joined</h5>
+
+                        <p>
+                            <%= currUser.createdAt 
+                                ? currUser.createdAt.toDateString()
+                                : "Recently" %>
+                        </p>
+                    </div>
+
+                    <div class="col-md-4 mb-3">
+                        <h5 class="fw-bold">Listings</h5>
+                        <p>0</p>
+                    </div>
+
+                    <div class="col-md-4 mb-3">
+                        <h5 class="fw-bold">Bookings</h5>
+                        <p>0</p>
+                    </div>
+
+                </div>
+
+                <hr>
+
+                <!-- Future Section -->
+                <div>
+
+                    <h4 class="fw-bold mb-3">
+                        Upcoming Trips
+                    </h4>
+
+                    <div class="alert alert-info rounded-3">
+                        No bookings yet.
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
