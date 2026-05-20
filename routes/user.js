@@ -24,4 +24,25 @@ router.route("/login")
 //logout route
 router.get("/logout",userController.logout);
 
+router.get('/auth/google', 
+    passport.authenticate('google',{
+        scope: ['profile', 'email'],
+    }
+));
+
+
+router.get('/auth/google/callback', 
+    passport.authenticate('google', {
+        failureRedirect: '/login',
+        failureFlash: true,
+    }),
+
+    async(req, res) =>{
+        req.flash('success', "Welcome to WanderSphere!");
+        res.redirect('/listings');
+    }
+);
+
+
+
 module.exports = router;

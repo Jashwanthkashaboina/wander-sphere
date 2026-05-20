@@ -12,8 +12,11 @@ const ExpressError = require("./utils/ExpressError.js");
 const session = require("express-session");
 const MongoStore = require('connect-mongo');
 const flash = require("connect-flash");
+
 const passport = require("passport");
 const LocalStrategy = require("passport-local");
+const GoogleStrategy = require("passport-google-oauth20").Strategy;
+
 const User = require("./models/user.js");
 // const MONGO_URL = "mongodb://127.0.0.1:27017/wanderlust";
 const dbUrl = process.env.ATLASDB_URL;
@@ -23,6 +26,7 @@ const dbUrl = process.env.ATLASDB_URL;
 const listingRouter = require("./routes/listing.js");
 const reviewRouter = require("./routes/review.js");
 const userRouter = require("./routes/user.js");
+const { access } = require('fs');
 
 
 const store = MongoStore.create({
@@ -82,6 +86,37 @@ app.use(flash());
 app.use(passport.initialize());
 app.use(passport.session());
 passport.use(new LocalStrategy(User.authenticate()));
+
+
+passport.use(
+    new GoogleStrategy({
+        clientID: process.env.GOOGLE_CLIENT_ID,
+        clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+        callbackURL: '/auth/google/callback'
+    },
+    async(accessToken, refreshToken, profile, cb) =>{
+        try{
+            let existingUser = await User.findOne({
+                googleId: profile.id,
+            });
+    
+            if(existingUser) return cb(null, existingUser);
+    
+            let newUser = new User({
+                googleId: profile.id,
+                username: profile.emails[0].value,
+                email: profile.emails[0].value,
+            });
+    
+            await newUser.save();
+    
+            cb(null, newUser);
+        } catch(err){
+            cb(err, null);
+        }
+
+    }
+))
 
 passport.serializeUser(User.serializeUser());
 passport.deserializeUser(User.deserializeUser());
