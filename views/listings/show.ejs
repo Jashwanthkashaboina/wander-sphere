@@ -167,7 +167,20 @@
                                 </select>
 
                             </div>
+                            <hr>
 
+                            <!-- Dynamic Price Calculation -->
+                            <div class="d-flex justify-content-between mb-3">
+
+                                <span id="nightText">
+                                    0 nights
+                                </span>
+
+                                <span id="totalPrice">
+                                    ₹0
+                                </span>
+
+                            </div>
                             <!-- Reserve Button -->
 
                             <button class="btn btn-danger w-100 rounded-pill py-3 fw-bold">
@@ -273,6 +286,7 @@
         const checkInInput = document.getElementById("checkIn");
 
         const checkOutInput = document.getElementById("checkOut");
+        const pricePerNight =  listing.price;
 
         checkInInput.addEventListener("change", () => {
 
@@ -282,7 +296,44 @@
                 checkOutInput.value = "";
             }
 
+            calculatePrice();
         });
+
+        checkOutInput.addEventListener("change", () => {
+
+            calculatePrice();
+
+        });
+
+        function calculatePrice(){
+
+            if(checkInInput.value && checkOutInput.value){
+
+                const checkInDate = new Date(checkInInput.value);
+
+                const checkOutDate = new Date(checkOutInput.value);
+
+                const timeDiff = checkOutDate - checkInDate;
+
+                const nights = Math.ceil(
+                    timeDiff / (1000 * 60 * 60 * 24)
+                );
+
+                if(nights > 0){
+
+                    const total = nights * pricePerNight;
+
+                    document.getElementById("nightText")
+                        .innerText = `${nights} night(s)`;
+
+                    document.getElementById("totalPrice")
+                        .innerText = `₹${total.toLocaleString("en-IN")}`;
+
+                }
+
+            }
+
+        }
 
     </script>
 

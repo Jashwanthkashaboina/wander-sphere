@@ -17,7 +17,25 @@ router.post('/', async(req, res) =>{
         }
 
         const { checkIn, checkOut, guests } = req.body;
-        const totalPrice = listing.price;
+        
+        const checkInDate = new Date(checkIn);
+
+        const checkOutDate = new Date(checkOut);
+
+        const timeDiff = checkOutDate - checkInDate;
+
+        const nights = Math.ceil(
+            timeDiff / (1000 * 60 * 60 * 24)
+        );
+
+        if(nights <= 0){
+
+            req.flash("error", "Invalid booking dates!");
+
+            return res.redirect(`/listings/${id}`);
+        }
+
+        const totalPrice = nights * listing.price;
 
         const newBooking = new Booking({
             listing: listing._id,
@@ -30,13 +48,16 @@ router.post('/', async(req, res) =>{
 
         await newBooking.save();
         console.log('Booking Done!');
-        
+
         req.flash('success', 'Booking created Successful!');
         res.redirect('/profile');
+
     } catch(err){
+
         console.log(err);
         req.flash('error', 'Something went wrong');
         res.redirect('/listings');
+        
     }
 });
 
