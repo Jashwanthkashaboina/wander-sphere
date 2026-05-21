@@ -196,20 +196,20 @@
 
     </div>
 
-        <br/>
-        <% if(currUser && currUser._id.equals(listing.owner._id)) {%>
-            <div class="btns mt-3">
-                <a href="/listings/<%=listing._id%>/edit" class="btn btn-dark col-6 col-md-1 offset-md-3 edit-btn">Edit</a>
-                <br/><br/>
-                <form method="POST" action="/listings/<%= listing._id %>?_method=DELETE">
-                    <button class="btn btn-dark offset-5">Delete</button>
-                </form>
-            </div>
-            <% } %>
-            <hr/>
-            <div class="col-12 col-md-8 offset-md-3 mb-3">
-                <% if(currUser) {%>
-                    <h4>Leave a Review</h4>
+    <br/>
+    <% if(currUser && currUser._id.equals(listing.owner._id)) { %>
+        <div class="btns mt-3">
+            <a href="/listings/<%=listing._id%>/edit" class="btn btn-dark col-6 col-md-1 offset-md-3 edit-btn">Edit</a>
+            <br/><br/>
+            <form method="POST" action="/listings/<%= listing._id %>?_method=DELETE">
+                <button class="btn btn-dark offset-5">Delete</button>
+            </form>
+        </div>
+    <% } %>
+    <hr/>
+    <div class="col-12 col-md-8 offset-md-3 mb-3">
+        <% if(currUser) {%>
+            <h4>Leave a Review</h4>
             <form action="/listings/<%=listing._id%>/reviews" method="POST" novalidate class="needs-validation">
                 <div class="mb-3 mt-3">
                     <label for="review[rating]" class="form-label">Rating</label>
@@ -236,59 +236,56 @@
                 <button class="btn btn-outline-dark">Submit</button>
                 <hr/>
             </form>
-            
-            <% } %>
-            <br/>
-            <% if(listing.reviews.length >0) {%>
-                <div class="row">
-                    <p><b>All Reviews</b></p>
-                    <%for(review of listing.reviews){ %>
-                        <div class="card col-12 col-md-5 ms-md-3 mb-3">
-                            <div class="card-body">
-                                <h5 class="card-title">@<%= review.author.username %></h5>
-                                <!-- The below line is TO Give Rating from starability -->
-                                <p class="starability-result card-text" data-rating="<%= review.rating %>"></p>
-                                <p class="card-text"> <%= review.comment %></p>
-                                <% if(currUser && currUser._id.equals(listing.owner._id)) {%>
-                                    <form class="mb-3" method="POST" action="/listings/<%=listing._id%>/reviews/<%=review._id%>?_method=DELETE">
-                                        <button class="btn btn-sm btn-dark">Delete</button>
-                                    </form>
-                                <% } %>
-                            </div>
+    
+        <% } %>
+        <br/>
+        <% if(listing.reviews.length > 0) { %>
+            <div class="row">
+                <p><b>All Reviews</b></p>
+                <%for(review of listing.reviews){ %>
+                    <div class="card col-12 col-md-5 ms-md-3 mb-3">
+                        <div class="card-body">
+                            <h5 class="card-title">@<%= review.author.username %></h5>
+                            <!-- The below line is TO Give Rating from starability -->
+                            <p class="starability-result card-text" data-rating="<%= review.rating %>"></p>
+                            <p class="card-text"> <%= review.comment %></p>
+                            <% if(currUser && currUser._id.equals(listing.owner._id)) {%>
+                                <form class="mb-3" method="POST" action="/listings/<%=listing._id%>/reviews/<%=review._id%>?_method=DELETE">
+                                    <button class="btn btn-sm btn-dark">Delete</button>
+                                </form>
+                            <% } %>
                         </div>
-                        <% } %>
                     </div>
-                    <% } %>
-                </div>
-                <div class="col-12 col-md-6 offset-md-3 mb-3">
-                    <h3>Where you'll be</h3>
-                    <div id="map"></div>
-                </div>
-                <script src="/js/authenticate.js"></script>
+                <% } %>
+            </div>
+        <% } %>
+    </div>
+    <div class="col-12 col-md-6 offset-md-3 mb-3">
+        <h3>Where you'll be</h3>
+        <div id="map"></div>
+    </div>
+    <script src="/js/authenticate.js"></script>
+    <script src="/js/map.js"></script>
 
-                <!-- Booking Feature JS -->
-                <script>
+    <!-- Booking Feature -->
+    <script>
 
-                    const checkInInput = document.getElementById("checkIn");
+        const checkInInput = document.getElementById("checkIn");
 
-                    const checkOutInput = document.getElementById("checkOut");
+        const checkOutInput = document.getElementById("checkOut");
 
-                    checkInInput.addEventListener("change", () => {
+        checkInInput.addEventListener("change", () => {
 
-                        checkOutInput.min = checkInInput.value;
+            checkOutInput.min = checkInInput.value;
 
-                        if(checkOutInput.value < checkInInput.value){
-                            checkOutInput.value = "";
-                        }
+            if(checkOutInput.value < checkInInput.value){
+                checkOutInput.value = "";
+            }
 
-                    });
+        });
 
-                </script>
-<!-- </div> -->
+    </script>
 
-
-
-<script src="/js/map.js"></script>
 
 
 

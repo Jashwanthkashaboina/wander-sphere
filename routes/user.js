@@ -5,6 +5,7 @@ const wrapAsync = require("../utils/wrapAsync.js");
 const passport = require("passport");
 const { savedRedirectUrl } = require("../middleware.js");
 const userController = require("../controllers/users.js");
+const Booking = require('../models/booking.js');
 
 
 
@@ -45,12 +46,16 @@ router.get('/auth/google/callback',
 );
 
 
-router.get('/profile', (req, res) =>{
+router.get('/profile', async(req, res) =>{
     if(!req.isAuthenticated()){
         req.flash('error', 'You must be logged in!');
         return res.redirect('/login');
     }
-    return res.render('users/profile');
+
+    const bookings = await Booking.find({
+        user: req.user._id,
+    }).populate('listing');
+    return res.render('users/profile', { bookings });
 })
 
 
