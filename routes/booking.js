@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router({ mergeParams: true });
 const Booking = require('../models/booking');
 const Listing = require('../models/listing');
+const razorpay = require('../utils/razorpay');
 
 
 router.post('/', async(req, res) =>{
@@ -49,16 +50,52 @@ router.post('/', async(req, res) =>{
         await newBooking.save();
         console.log('Booking Done!');
 
-        req.flash('success', 'Booking created Successful!');
-        res.redirect('/profile');
+        res.json({
+            success: true,
+            bookingId: newBooking._id,
+        });
+
+        // req.flash('success', 'Booking created Successful!');
+        // res.redirect('/profile');
 
     } catch(err){
 
         console.log(err);
         req.flash('error', 'Something went wrong');
         res.redirect('/listings');
-        
+
     }
 });
+
+
+router.post('/:bookingId/create-order', async(req, res) =>{
+    try{
+        let { bookingId } = req.params;
+        
+        const booking = await Booking.findById(bookingId);
+
+        if(!booking){
+            return res.status(404).json({ message: "Booking not Found!" });
+        }
+
+        const options = {
+            amount: booking.totalPrice * 100,
+            currency: "INR",
+            receipt: `booking_${bookingId}`,
+        };
+
+        const order = await razorpay.orders.create(options);
+
+        booking.orderId = order.id;
+        
+        await booking.save();
+
+        res.json(order);
+
+    } catch(err){
+        console.error(err);
+        res.status(500).json({ message: "Something went wrong" });
+    }
+})
 
 module.exports = router;

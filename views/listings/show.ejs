@@ -35,7 +35,7 @@
     <div class="row mt-4">
 
         <!-- LEFT SIDE -->
-        <div class="col-lg-8">
+        <div class="col-lg-7">
 
             <!-- here we made  2 diff cols like heading one col which occupies 8 cols -->
             <div class="mb-3 mt-3">
@@ -86,7 +86,7 @@
         </div>
 
         <!-- RIGHT SIDE -->
-        <div class="col-lg-4">
+        <div class="col-lg-5">
 
             <div class="booking-sticky mt-3 shadow-md">
 
@@ -106,7 +106,11 @@
                             let today = new Date().toISOString().split("T")[0];
                         %>
 
-                        <form action="/listings/<%= listing._id %>/bookings" method="POST">
+                        <form 
+                            id="bookingForm"
+                            action="/listings/<%= listing._id %>/bookings"
+                            method="POST"
+                        >
 
                             <!-- Checkin Checkout -->
 
@@ -279,63 +283,161 @@
     </div>
     <script src="/js/authenticate.js"></script>
     <script src="/js/map.js"></script>
+    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
 
     <!-- Booking Feature -->
     <script>
 
-        const checkInInput = document.getElementById("checkIn");
+    const bookingForm = document.getElementById("bookingForm");
 
-        const checkOutInput = document.getElementById("checkOut");
-        const pricePerNight =  listing.price;
+    const checkInInput = document.getElementById("checkIn");
 
-        checkInInput.addEventListener("change", () => {
+    const checkOutInput = document.getElementById("checkOut");
 
-            checkOutInput.min = checkInInput.value;
+    const pricePerNight = listing.price;
 
-            if(checkOutInput.value < checkInInput.value){
-                checkOutInput.value = "";
-            }
 
-            calculatePrice();
-        });
 
-        checkOutInput.addEventListener("change", () => {
+    checkInInput.addEventListener("change", () => {
 
-            calculatePrice();
+        checkOutInput.min = checkInInput.value;
 
-        });
+        if(checkOutInput.value < checkInInput.value){
 
-        function calculatePrice(){
+            checkOutInput.value = "";
 
-            if(checkInInput.value && checkOutInput.value){
+        }
 
-                const checkInDate = new Date(checkInInput.value);
+        calculatePrice();
 
-                const checkOutDate = new Date(checkOutInput.value);
+    });
 
-                const timeDiff = checkOutDate - checkInDate;
 
-                const nights = Math.ceil(
-                    timeDiff / (1000 * 60 * 60 * 24)
-                );
 
-                if(nights > 0){
+    checkOutInput.addEventListener("change", () => {
 
-                    const total = nights * pricePerNight;
+        calculatePrice();
 
-                    document.getElementById("nightText")
-                        .innerText = `${nights} night(s)`;
+    });
 
-                    document.getElementById("totalPrice")
-                        .innerText = `₹${total.toLocaleString("en-IN")}`;
 
-                }
+
+    function calculatePrice(){
+
+        if(checkInInput.value && checkOutInput.value){
+
+            const checkInDate = new Date(checkInInput.value);
+
+            const checkOutDate = new Date(checkOutInput.value);
+
+            const timeDiff = checkOutDate - checkInDate;
+
+            const nights = Math.ceil(
+                timeDiff / (1000 * 60 * 60 * 24)
+            );
+
+            if(nights > 0){
+
+                const total = nights * pricePerNight;
+
+                document.getElementById("nightText")
+                    .innerText = `${nights} night(s)`;
+
+                document.getElementById("totalPrice")
+                    .innerText = `₹${total.toLocaleString("en-IN")}`;
 
             }
 
         }
 
-    </script>
+    }
+
+
+
+    bookingForm.addEventListener("submit", async(e) => {
+
+        e.preventDefault();
+
+        try{
+
+            // STEP 1 → CREATE BOOKING
+
+            const formData = new FormData(bookingForm);
+
+            const bookingResponse = await fetch(
+                bookingForm.action,
+                {
+                    method: "POST",
+                    body: new URLSearchParams(formData),
+                }
+            );
+
+            const bookingData = await bookingResponse.json();
+
+            const bookingId = bookingData.bookingId;
+
+
+
+            // STEP 2 → CREATE RAZORPAY ORDER
+
+            const orderResponse = await fetch(
+
+                `/listings/<%= listing._id %>/bookings/${bookingId}/create-order`,
+                {
+                    method: "POST",
+                }
+
+            );
+
+            const order = await orderResponse.json();
+
+
+
+            // STEP 3 → OPEN RAZORPAY
+
+            const options = {
+
+                key: "<%= process.env.RAZORPAY_KEY_ID %>",
+
+                amount: order.amount,
+
+                currency: order.currency,
+
+                name: "WanderSphere",
+
+                description: "Booking Payment",
+
+                order_id: order.id,
+
+                handler: async function(response){
+
+                    alert("Payment Successful!");
+
+                    console.log(response);
+
+                    window.location.href = "/profile";
+
+                }
+
+            };
+
+
+
+            const rzp = new Razorpay(options);
+
+            rzp.open();
+
+        } catch(err){
+
+            console.log(err);
+
+            alert("Something went wrong!");
+
+        }
+
+    });
+
+</script>
 
 
 
