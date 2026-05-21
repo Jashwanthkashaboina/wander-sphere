@@ -1,24 +1,201 @@
 <% layout("/layouts/boilerplate") %>
+<style>
+
+.booking-sticky{
+    position: sticky;
+    top: 120px;
+}
+
+.col-lg-4{
+    align-self: flex-start;
+}
+
+.booking-sticky .card{
+    max-width: 420px;
+    margin-left: auto;
+}
+
+@media(max-width:992px){
+
+    .booking-sticky{
+        position: static;
+    }
+
+    .booking-sticky .card{
+        max-width: 100%;
+    }
+}
+
+</style>
 <script>
     const mapToken = "<%= process.env.MAP_TOKEN %>";
     const listing = <%- JSON.stringify(listing) %>;
 </script>
-<div class="row mt-3">
-    <!-- here we made  2 diff cols like heading one col which occupies 8 cols -->
-    <div class="col-12 col-md-8 offset-md-3"> 
-        <h3><%=listing.title%></h3>
-    </div>
-    <!-- here for remaining content we made anothter col -->
-    <div class="card col-12 col-md-6 offset-md-3 show-card listing-card"> 
-        <img src="<%= listing.image.url %>" class="card-img-top show-img" alt="listing_image" >
-        <div class="card-body">
-                <p class="card-text"> <i>Owned-By : <%= listing.owner.username %></i> </p>
-                <p class="card-text"> <%=listing.description%> </p>
-                <p class="card-text"> &#8377;<%= listing.price ? listing.price.toLocaleString("en-IN") : "N/A" %></p>
-                <p class="card-text"> <%=listing.location%> </p>
-                <p class="card-text"> <%=listing.country%> </p>
+
+    <div class="row mt-4">
+
+        <!-- LEFT SIDE -->
+        <div class="col-lg-8">
+
+            <!-- here we made  2 diff cols like heading one col which occupies 8 cols -->
+            <div class="mb-3 mt-3">
+                <h3><%=listing.title%></h3>
             </div>
+
+            <!-- here for remaining content we made anothter col -->
+            <div class="card show-card listing-card border-0">
+
+            <img 
+                src="<%= listing.image.url %>" 
+                class="card-img-top show-img" 
+                alt="listing_image"
+            >
+
+            <div class="card-body mt-4">
+
+                <h5 class="fw-bold mb-3">
+                    Hosted by <%= listing.owner.username %>
+                </h5>
+
+                <hr>
+
+                <p class="card-text mb-3">
+                    <span class="fw-bold">Description:</span><br>
+                     <%= listing.description %>
+                </p>
+
+                <p class="card-text mb-2">
+                    <span class="fw-bold">Price:</span>
+                    ₹<%= listing.price ? listing.price.toLocaleString("en-IN") : "N/A" %> / night
+                </p>
+
+                <p class="card-text mb-2">
+                    <span class="fw-bold">Location:</span>
+                    <%= listing.location %>
+                </p>
+
+                <p class="card-text">
+                    <span class="fw-bold">Country:</span>
+                    <%= listing.country %>
+                </p>
+
+            </div>
+
         </div>
+
+        </div>
+
+        <!-- RIGHT SIDE -->
+        <div class="col-lg-4">
+
+            <div class="booking-sticky mt-3 shadow-md">
+
+                <div class="card shadow border-0 rounded-4 p-4">
+
+                    <h4 class="fw-bold mb-4">
+                        ₹<%= listing.price.toLocaleString("en-IN") %>
+
+                        <span class="text-muted fs-6">
+                            / night
+                        </span>
+                    </h4>
+
+                    <% if(currUser){ %>
+
+                        <%
+                            let today = new Date().toISOString().split("T")[0];
+                        %>
+
+                        <form action="/listings/<%= listing._id %>/bookings" method="POST">
+
+                            <!-- Checkin Checkout -->
+
+                            <div class="row g-0 border rounded-4 overflow-hidden mb-3">
+
+                                <div class="col-6 border-end p-3">
+
+                                    <label class="form-label fw-bold small">
+                                        CHECK-IN
+                                    </label>
+
+                                    <input 
+                                        type="date"
+                                        id="checkIn"
+                                        name="checkIn"
+                                        class="form-control border-0 shadow-none p-0"
+                                        min="<%= today %>"
+                                        required
+                                    >
+
+                                </div>
+
+                                <div class="col-6 p-3">
+
+                                    <label class="form-label fw-bold small">
+                                        CHECKOUT
+                                    </label>
+
+                                    <input 
+                                        type="date"
+                                        id="checkOut"
+                                        name="checkOut"
+                                        class="form-control border-0 shadow-none p-0"
+                                        required
+                                    >
+
+                                </div>
+
+                            </div>
+
+                            <!-- Guests -->
+
+                            <div class="border rounded-4 p-3 mb-4">
+
+                                <label class="form-label fw-bold small">
+                                    GUESTS
+                                </label>
+
+                                <select 
+                                    name="guests"
+                                    class="form-select border-0 shadow-none"
+                                >
+                                    <option value="1">1 guest</option>
+                                    <option value="2">2 guests</option>
+                                    <option value="3">3 guests</option>
+                                    <option value="4">4 guests</option>
+                                    <option value="5">5 guests</option>
+                                </select>
+
+                            </div>
+
+                            <!-- Reserve Button -->
+
+                            <button class="btn btn-danger w-100 rounded-pill py-3 fw-bold">
+                                Reserve
+                            </button>
+
+                            <p class="text-center text-muted mt-3 mb-0">
+                                You won't be charged yet
+                            </p>
+
+                        </form>
+
+                    <% } else { %>
+
+                        <div class="alert alert-warning">
+                            Please login to book this listing.
+                        </div>
+
+                    <% } %>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
         <br/>
         <% if(currUser && currUser._id.equals(listing.owner._id)) {%>
             <div class="btns mt-3">
@@ -88,28 +265,27 @@
                     <div id="map"></div>
                 </div>
                 <script src="/js/authenticate.js"></script>
-                <!-- <script>
-                    // Example starter JavaScript for disabling form submissions if there are invalid fields
-                    (() => {
-                        'use strict'
-                        
-                        // Fetch all the forms we want to apply custom Bootstrap validation styles to
-                        const forms = document.querySelectorAll('.needs-validation')
-                        
-                        // Loop over them and prevent submission
-                        Array.from(forms).forEach(form => {
-                            form.addEventListener('submit', event => {
-                                if (!form.checkValidity()) {
-                                    event.preventDefault()
-                                    event.stopPropagation()
-                                }
-                                
-                                form.classList.add('was-validated')
-                            }, false)
-                        })
-                    })()
-                    </script> -->
-</div>
+
+                <!-- Booking Feature JS -->
+                <script>
+
+                    const checkInInput = document.getElementById("checkIn");
+
+                    const checkOutInput = document.getElementById("checkOut");
+
+                    checkInInput.addEventListener("change", () => {
+
+                        checkOutInput.min = checkInInput.value;
+
+                        if(checkOutInput.value < checkInInput.value){
+                            checkOutInput.value = "";
+                        }
+
+                    });
+
+                </script>
+<!-- </div> -->
+
 
 
 <script src="/js/map.js"></script>
