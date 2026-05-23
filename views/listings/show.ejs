@@ -283,159 +283,197 @@
     </div>
     <script src="/js/authenticate.js"></script>
     <script src="/js/map.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
     <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
 
     <!-- Booking Feature -->
     <script>
 
-    const bookingForm = document.getElementById("bookingForm");
+        const bookingForm = document.getElementById("bookingForm");
 
-    const checkInInput = document.getElementById("checkIn");
+        const checkInInput = document.getElementById("checkIn");
 
-    const checkOutInput = document.getElementById("checkOut");
+        const checkOutInput = document.getElementById("checkOut");
 
-    const pricePerNight = listing.price;
-
-
-
-    checkInInput.addEventListener("change", () => {
-
-        checkOutInput.min = checkInInput.value;
-
-        if(checkOutInput.value < checkInInput.value){
-
-            checkOutInput.value = "";
-
-        }
-
-        calculatePrice();
-
-    });
+        const pricePerNight = listing.price;
 
 
 
-    checkOutInput.addEventListener("change", () => {
+        checkInInput.addEventListener("change", () => {
 
-        calculatePrice();
+            // Create next day date
+            const nextDay = new Date(checkInInput.value);
 
-    });
+            nextDay.setDate(nextDay.getDate() + 1);
+
+            // Format YYYY-MM-DD
+            const minCheckout =
+                nextDay.toISOString().split("T")[0];
+
+            checkOutInput.min = minCheckout;
+
+            
+            if(checkOutInput.value <= checkInInput.value){
+
+                checkOutInput.value = "";
+
+            }
+
+            calculatePrice();
+
+        });
 
 
 
-    function calculatePrice(){
+        checkOutInput.addEventListener("change", () => {
 
-        if(checkInInput.value && checkOutInput.value){
+            calculatePrice();
 
-            const checkInDate = new Date(checkInInput.value);
+        });
 
-            const checkOutDate = new Date(checkOutInput.value);
 
-            const timeDiff = checkOutDate - checkInDate;
 
-            const nights = Math.ceil(
-                timeDiff / (1000 * 60 * 60 * 24)
-            );
+        function calculatePrice(){
 
-            if(nights > 0){
+            if(checkInInput.value && checkOutInput.value){
 
-                const total = nights * pricePerNight;
+                const checkInDate = new Date(checkInInput.value);
 
-                document.getElementById("nightText")
-                    .innerText = `${nights} night(s)`;
+                const checkOutDate = new Date(checkOutInput.value);
 
-                document.getElementById("totalPrice")
-                    .innerText = `₹${total.toLocaleString("en-IN")}`;
+                const timeDiff = checkOutDate - checkInDate;
+
+                const nights = Math.ceil(
+                    timeDiff / (1000 * 60 * 60 * 24)
+                );
+
+                if(nights > 0){
+
+                    const total = nights * pricePerNight;
+
+                    document.getElementById("nightText")
+                        .innerText = `${nights} night(s)`;
+
+                    document.getElementById("totalPrice")
+                        .innerText = `₹${total.toLocaleString("en-IN")}`;
+
+                }
 
             }
 
         }
 
-    }
+
+
+        bookingForm.addEventListener("submit", async(e) => {
+
+            e.preventDefault();
+
+            try{
+
+                // STEP 1 → CREATE BOOKING
+
+                const formData = new FormData(bookingForm);
+
+                const bookingResponse = await fetch(
+                    bookingForm.action,
+                    {
+                        method: "POST",
+                        body: new URLSearchParams(formData),
+                    }
+                );
+
+                const bookingData = await bookingResponse.json();
+
+                const bookingId = bookingData.bookingId;
 
 
 
-    bookingForm.addEventListener("submit", async(e) => {
+                // STEP 2 → CREATE RAZORPAY ORDER
 
-        e.preventDefault();
+                const orderResponse = await fetch(
 
-        try{
+                    `/listings/<%= listing._id %>/bookings/${bookingId}/create-order`,
+                    {
+                        method: "POST",
+                    }
 
-            // STEP 1 → CREATE BOOKING
+                );
 
-            const formData = new FormData(bookingForm);
-
-            const bookingResponse = await fetch(
-                bookingForm.action,
-                {
-                    method: "POST",
-                    body: new URLSearchParams(formData),
-                }
-            );
-
-            const bookingData = await bookingResponse.json();
-
-            const bookingId = bookingData.bookingId;
+                const order = await orderResponse.json();
 
 
 
-            // STEP 2 → CREATE RAZORPAY ORDER
+                // STEP 3 → OPEN RAZORPAY
 
-            const orderResponse = await fetch(
+                const options = {
 
-                `/listings/<%= listing._id %>/bookings/${bookingId}/create-order`,
-                {
-                    method: "POST",
-                }
+                    key: "<%= process.env.RAZORPAY_KEY_ID %>",
 
-            );
+                    amount: order.amount,
 
-            const order = await orderResponse.json();
+                    currency: order.currency,
+
+                    name: "WanderSphere",
+
+                    description: "Booking Payment",
+
+                    order_id: order.id,
 
 
+                    handler: async function(response){
 
-            // STEP 3 → OPEN RAZORPAY
+                        try{
 
-            const options = {
+                            const verifyResponse = await axios.post(
 
-                key: "<%= process.env.RAZORPAY_KEY_ID %>",
+                                "/listings/<%= listing._id %>/bookings/verify-payment",
 
-                amount: order.amount,
+                                {
 
-                currency: order.currency,
+                                    razorpay_order_id: response.razorpay_order_id,
 
-                name: "WanderSphere",
+                                    razorpay_payment_id: response.razorpay_payment_id,
 
-                description: "Booking Payment",
+                                    razorpay_signature: response.razorpay_signature,
 
-                order_id: order.id,
+                                    bookingId: bookingId,
+                                }
 
-                handler: async function(response){
-
-                    alert("Payment Successful!");
-
-                    console.log(response);
-
-                    window.location.href = "/profile";
-
-                }
-
-            };
+                            );
 
 
 
-            const rzp = new Razorpay(options);
+                            if(verifyResponse.data.success){
+                                window.location.href = "/profile";
+                            }
 
-            rzp.open();
+                        } catch(err){
 
-        } catch(err){
+                            console.log(err);
 
-            console.log(err);
+                            alert("Payment verification failed!");
 
-            alert("Something went wrong!");
+                        }
 
-        }
+                    }
+                };
 
-    });
+
+
+                const rzp = new Razorpay(options);
+
+                rzp.open();
+
+            } catch(err){
+
+                console.log(err);
+
+                alert("Something went wrong!");
+
+            }
+
+        });
 
 </script>
 
