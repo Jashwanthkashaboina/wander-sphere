@@ -26,6 +26,7 @@ const sendBookingEmail = async({
         guests,
         totalPrice,
         paymentId,
+        invoicePath,
     }) => {
 
     const mailOptions = {
@@ -86,7 +87,12 @@ const sendBookingEmail = async({
             </p>
 
         `,
-
+        attachments: [
+            {
+                filename: "WanderSphere-Invoice.pdf",
+                path: invoicePath,
+            }
+        ],
     };
 
 

@@ -5,6 +5,7 @@ const Listing = require('../models/listing');
 const razorpay = require('../utils/razorpay');
 const crypto = require('crypto');
 const sendBookingEmail = require('../utils/sendEmail');
+const generateInvoice = require('../utils/generateInvoice');
 
 router.post('/', async(req, res) =>{
     try{
@@ -126,8 +127,16 @@ router.post('/verify-payment', async(req, res) => {
 
             await booking.save();
 
+            const invoicePath = generateInvoice(
+                booking,
+                booking.listing,
+                booking.user,
+            );
+
             console.log("Sending email to:", booking.user.email);
-            
+
+            await new Promise(resolve => setTimeout(resolve, 1000));
+
             await sendBookingEmail({
                 to: booking.user.email,
                 listingTitle: booking.listing.title,
@@ -136,6 +145,7 @@ router.post('/verify-payment', async(req, res) => {
                 guests: booking.guests,
                 totalPrice: booking.totalPrice,
                 paymentId: razorpay_payment_id,
+                invoicePath,
             });
 
             req.flash("success", "Payment Verified Successfully!");
