@@ -4,6 +4,7 @@ const Booking = require('../models/booking');
 const Listing = require('../models/listing');
 const razorpay = require('../utils/razorpay');
 const crypto = require('crypto');
+const sendBookingEmail = require('../utils/sendEmail');
 
 router.post('/', async(req, res) =>{
     try{
@@ -117,13 +118,25 @@ router.post('/verify-payment', async(req, res) => {
 
         
         if(expectedSign === razorpay_signature){
-            const booking = await Booking.findById(bookingId);
+            const booking = await Booking.findById(bookingId).populate('user').populate('listing');
 
             booking.status = 'confirmed';
             booking.paymentId = razorpay_payment_id;
             booking.orderId = razorpay_order_id;
 
             await booking.save();
+
+            console.log("Sending email to:", booking.user.email);
+            
+            await sendBookingEmail({
+                to: booking.user.email,
+                listingTitle: booking.listing.title,
+                checkIn: booking.checkIn.toDateString(),
+                checkOut: booking.checkOut.toDateString(),
+                guests: booking.guests,
+                totalPrice: booking.totalPrice,
+                paymentId: razorpay_payment_id,
+            });
 
             req.flash("success", "Payment Verified Successfully!");
 
