@@ -151,6 +151,7 @@ app.use("/listings",listingRouter);
 app.use("/listings/:id/reviews",reviewRouter);
 app.use("/",userRouter);
 app.use('/listings/:id/bookings', bookingRouter);
+app.use('/bookings', bookingRouter);
 
 
 app.use((req,res,next)=>{

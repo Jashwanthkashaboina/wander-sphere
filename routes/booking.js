@@ -171,4 +171,18 @@ router.post('/verify-payment', async(req, res) => {
     }
 });
 
+router.delete('/:bookingId', async(req, res) =>{
+    try{
+        const { bookingId } = req.params;
+
+        await Booking.findByIdAndDelete(bookingId);
+        req.flash('success', 'Booking cancelled successfully!');
+        res.redirect('/profile');
+    } catch(err){
+        console.error('Booking Cancellation Error : ', err);
+        req.flash('error', 'Unable to cancel booking');
+        res.redirect('/profile');
+    }
+})
+
 module.exports = router;

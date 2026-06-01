@@ -72,7 +72,7 @@
 
                                 <% bookings.forEach((booking) => { %>
 
-                                    <div class="col-md-6 mb-4">
+                                    <!-- <div class="col-md-6 mb-4">
 
                                         <div class="card shadow-sm border-0 rounded-4">
 
@@ -82,7 +82,7 @@
                                                 style="height:220px; object-fit:cover;"
                                             >
 
-                                            <div class="card-body ms-3">
+                                            <div class="card-body ms-5">
 
                                                 <h5 class="fw-bold mt-3">
                                                     <%= booking.listing.title %>
@@ -131,21 +131,161 @@
                                                     </span>
                                                 </p>
 
+                                                <form
+                                                    action="/bookings/<%= booking._id %>?_method=DELETE"
+                                                    method="POST"
+                                                    onsubmit="return confirm('Cancel this booking?')"
+                                                >
+                                                    <button class="btn btn-danger btn-sm mb-3">
+                                                        Cancel Booking
+                                                    </button>
+                                                </form>
+
+                                            </div>
+
+                                        </div>
+
+                                    </div> -->
+
+                                    <div class="col-lg-6 col-md-12 mb-4">
+
+                                        <div class="card booking-card border-0 shadow-sm rounded-4 overflow-hidden h-100">
+
+                                            <img
+                                                src="<%= booking.listing.image.url %>"
+                                                class="card-img-top"
+                                                style="height:250px; object-fit:cover;"
+                                                alt="<%= booking.listing.title %>"
+                                            >
+
+                                            <div class="card-body p-4">
+
+                                                <h5 class="fw-bold mb-1">
+                                                    <%= booking.listing.title %>
+                                                </h5>
+
+                                                <p class="text-muted mb-3">
+                                                    <%= booking.listing.location %>,
+                                                    <%= booking.listing.country %>
+                                                </p>
+
+                                                <hr>
+
+                                                <div class="booking-details">
+
+                                                    <div class="detail-row">
+                                                        <span><b>Check In : </b></span>
+
+                                                        <span>
+                                                            <%= booking.checkIn.toLocaleDateString("en-GB", {
+                                                                day:"2-digit",
+                                                                month:"short",
+                                                                year:"numeric"
+                                                            }) %>
+                                                        </span>
+                                                    </div>
+
+                                                    <div class="detail-row">
+                                                        <span><b>Check Out : </b></span>
+
+                                                        <span>
+                                                            <%= booking.checkOut.toLocaleDateString("en-GB", {
+                                                                day:"2-digit",
+                                                                month:"short",
+                                                                year:"numeric"
+                                                            }) %>
+                                                        </span>
+                                                    </div>
+
+                                                    <div class="detail-row">
+                                                        <span><b>Guests : </b></span>
+
+                                                        <span>
+                                                            <%= booking.guests %>
+                                                        </span>
+                                                    </div>
+
+                                                    <div class="detail-row border-0">
+                                                        <span class="fw-bold">
+                                                            <b>Total Paid : </b>
+                                                        </span>
+
+                                                        <span class="fw-bold text-success">
+                                                            ₹<%= booking.totalPrice.toLocaleString("en-IN") %>
+                                                        </span>
+                                                    </div>
+
+                                                </div>
+
+                                                <div class="mt-4">
+
+                                                    <div class="d-flex justify-content-between align-items-center">
+
+                                                        <span class="badge rounded-pill bg-success px-3 py-2">
+                                                            <%= booking.status %>
+                                                        </span>
+
+                                                        <button
+                                                            type="button"
+                                                            class="btn btn-outline-danger rounded-pill px-3"
+                                                            onclick="toggleConfirm('<%= booking._id %>')"
+                                                        >
+                                                            Cancel Booking
+                                                        </button>
+
+                                                    </div>
+
+                                                    <div
+                                                        id="confirm-<%= booking._id %>"
+                                                        class="confirm-box mt-3"
+                                                    >
+                                                        <div class="alert alert-danger d-flex justify-content-between align-items-center mb-0">
+
+                                                            <span>
+                                                                Are you sure you want to cancel this booking?
+                                                            </span>
+
+                                                            <form
+                                                                action="/bookings/<%= booking._id %>?_method=DELETE"
+                                                                method="POST"
+                                                            >
+                                                                <button
+                                                                    type="submit"
+                                                                    class="btn btn-danger btn-sm"
+                                                                >
+                                                                    Yes, Cancel
+                                                                </button>
+                                                            </form>
+
+                                                        </div>
+                                                    </div>
+
+                                                </div>
+
                                             </div>
 
                                         </div>
 
                                     </div>
-
                                 <% }) %>
 
                             </div>
 
                         <% } else { %>
 
-                            <div class="alert alert-info rounded-3">
+                            <div class="text-center py-5">
 
-                                No bookings yet.
+                                <h5 class="text-muted">
+                                    No trips booked yet ✈️
+                                </h5>
+
+                                <p class="text-secondary">
+                                    Start exploring amazing places and make your first booking.
+                                </p>
+
+                                <a href="/listings" class="btn btn-dark rounded-pill px-4">
+                                    Explore Listings
+                                </a>
 
                             </div>
 
@@ -161,3 +301,50 @@
     </div>
 
 </div>
+
+
+<script>
+    function toggleConfirm(id) {
+        document
+            .getElementById(`confirm-${id}`)
+            .classList.toggle("show");
+    }
+</script>
+
+<style>
+    .booking-card{
+        transition: all .3s ease;
+    }
+
+    .booking-card:hover{
+        transform: translateY(-6px);
+        box-shadow: 0 15px 35px rgba(0,0,0,.12);
+    }
+
+    .detail-row{
+        display:flex;
+        justify-content:space-between;
+        align-items:center;
+        padding:12px 0;
+        border-bottom:1px solid #ececec;
+    }
+
+    .detail-row span:first-child{
+        font-weight:600;
+        color:#555;
+    }
+
+    .detail-row span:last-child{
+        color:#222;
+    }
+
+    .confirm-box{
+        max-height:0;
+        overflow:hidden;
+        transition:all .3s ease;
+    }
+
+    .confirm-box.show{
+        max-height:150px;
+    }
+</style>
