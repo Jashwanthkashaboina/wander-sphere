@@ -3,7 +3,7 @@ const router = express.Router({ mergeParams: true });
 const User = require("../models/user.js");
 const wrapAsync = require("../utils/wrapAsync.js");
 const passport = require("passport");
-const { savedRedirectUrl } = require("../middleware.js");
+const { savedRedirectUrl, isLoggedOut } = require("../middleware.js");
 const userController = require("../controllers/users.js");
 const Booking = require('../models/booking.js');
 
@@ -11,16 +11,16 @@ const Booking = require('../models/booking.js');
 
 router.route("/signup")
     //To sign-in
-    .get(userController.renderSignupForm)
+    .get(isLoggedOut, userController.renderSignupForm)
     //to sign-up
-    .post(wrapAsync(userController.signup));
+    .post(isLoggedOut, wrapAsync(userController.signup));
 
 
 router.route("/login")
     //to login
-    .get(userController.renderLoginForm)
+    .get(isLoggedOut, userController.renderLoginForm)
     //post login
-    .post(savedRedirectUrl,
+    .post(isLoggedOut, savedRedirectUrl,
         passport.authenticate("local",{failureRedirect: "/login",failureFlash: true}),userController.login);
 
 //logout route

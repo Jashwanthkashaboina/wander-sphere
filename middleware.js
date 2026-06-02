@@ -62,3 +62,13 @@ module.exports.isReviewAuthor = async(req,res,next)=>{
     }
     next();
 }
+
+// Prevent authenticated users from accessing login/signup pages.
+// If a valid session already exists, redirect them to listings page.
+module.exports.isLoggedOut = (req, res, next) => {
+    if(req.isAuthenticated()){
+        req.flash("success", "You are already logged in!");
+        return res.redirect("/listings");
+    }
+    next();
+}
