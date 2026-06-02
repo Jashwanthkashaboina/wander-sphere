@@ -6,7 +6,7 @@
 
         <div class="col-md-8">
 
-            <div class="card shadow-lg border-0 rounded-4 p-4">
+            <div class="card shadow-md border-2 rounded-4 p-4 mb-3">
 
                 <!-- Profile Header -->
                 <div class="text-center">
@@ -37,20 +37,22 @@
                         <h5 class="fw-bold">Joined</h5>
 
                         <p>
-                            <%= currUser.createdAt 
-                                ? currUser.createdAt.toDateString()
-                                : "Recently" %>
+                            <%= currUser.createdAt ? currUser.createdAt.toLocaleDateString("en-US", {
+                                month: "long",
+                                day: "numeric",
+                                year: "numeric"
+                            })  : "Recently" %>
                         </p>
                     </div>
 
                     <div class="col-md-4 mb-3">
-                        <h5 class="fw-bold">Listings</h5>
+                        <h5 class="fw-bold">Owned Listings</h5>
                         <p>0</p>
                     </div>
 
                     <div class="col-md-4 mb-3">
                         <h5 class="fw-bold">Bookings</h5>
-                        <p>0</p>
+                        <p><%= bookings.length %></p>
                     </div>
 
                 </div>
@@ -72,91 +74,18 @@
 
                                 <% bookings.forEach((booking) => { %>
 
-                                    <!-- <div class="col-md-6 mb-4">
-
-                                        <div class="card shadow-sm border-0 rounded-4">
-
-                                            <img 
-                                                src="<%= booking.listing.image.url %>"
-                                                class="card-img-top"
-                                                style="height:220px; object-fit:cover;"
-                                            >
-
-                                            <div class="card-body ms-5">
-
-                                                <h5 class="fw-bold mt-3">
-                                                    <%= booking.listing.title %>
-                                                </h5>
-
-                                                <p class="text-muted mb-1">
-                                                    <%= booking.listing.location %>,
-                                                    <%= booking.listing.country %>
-                                                </p>
-
-                                                <hr>
-
-                                                <p>
-                                                    <b>Check In:</b>
-                                                    <%= booking.checkIn.toLocaleDateString("en-GB", {
-                                                        day: "2-digit",
-                                                        month: "short",
-                                                        year: "numeric"
-                                                    }) %>
-                                                </p>
-
-                                                <p>
-                                                    <b>Check Out:</b>
-                                                    <%= booking.checkOut.toLocaleDateString("en-GB", {
-                                                        day: "2-digit",
-                                                        month: "short",
-                                                        year: "numeric"
-                                                    }) %>
-                                                </p>
-
-                                                <p>
-                                                    <b>Guests:</b>
-
-                                                    <%= booking.guests %>
-                                                </p>
-                                                <p>
-                                                    <b>Total Paid:</b>
-
-                                                    ₹<%= booking.totalPrice.toLocaleString("en-IN") %>
-                                                </p>
-                                                <p>
-                                                    <b>Status:</b>
-
-                                                    <span class="badge bg-success">
-                                                        <%= booking.status %>
-                                                    </span>
-                                                </p>
-
-                                                <form
-                                                    action="/bookings/<%= booking._id %>?_method=DELETE"
-                                                    method="POST"
-                                                    onsubmit="return confirm('Cancel this booking?')"
-                                                >
-                                                    <button class="btn btn-danger btn-sm mb-3">
-                                                        Cancel Booking
-                                                    </button>
-                                                </form>
-
-                                            </div>
-
-                                        </div>
-
-                                    </div> -->
-
                                     <div class="col-lg-6 col-md-12 mb-4">
 
                                         <div class="card booking-card border-0 shadow-sm rounded-4 overflow-hidden h-100">
 
-                                            <img
-                                                src="<%= booking.listing.image.url %>"
-                                                class="card-img-top"
-                                                style="height:250px; object-fit:cover;"
-                                                alt="<%= booking.listing.title %>"
-                                            >
+                                            <a href="/listings/<%=booking.listing._id%>" target="blank" rel="noopener noreferrer">
+                                                <img
+                                                    src="<%= booking.listing.image.url %>"
+                                                    class="card-img-top mx-2 my-2"
+                                                    style="height:260px; width: 350px !important; object-fit:cover;"
+                                                    alt="<%= booking.listing.title %>"
+                                                >
+                                            </a>
 
                                             <div class="card-body p-4">
 
