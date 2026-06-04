@@ -96,8 +96,11 @@ const sendBookingEmail = async({
     };
 
 
+    console.log("Before Email");
 
     await transporter.sendMail(mailOptions);
+
+    console.log("After Email");
 
 };
 
