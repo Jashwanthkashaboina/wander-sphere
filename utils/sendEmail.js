@@ -11,16 +11,6 @@ const transporter = nodemailer.createTransport({
     },
 });
 
-transporter.verify((err, success) => {
-    if(err){
-        console.log("SMTP ERROR:", err);
-    } else {
-        console.log("SMTP READY");
-    }
-});
-
-
-
 const sendBookingEmail = async({
 
         to,
@@ -104,10 +94,11 @@ const sendBookingEmail = async({
 
     try{
         await transporter.sendMail(mailOptions);
+        console.log("Email sent successfully");
     } catch(err){
         console.log('Email confirmation Error : ', err);
     }
-    
+
     console.log("After Email");
 
 };
