@@ -1,4 +1,5 @@
 const nodemailer = require("nodemailer");
+const fs = require("fs");
 // require('dotenv').config();
 
 const transporter = nodemailer.createTransport({
@@ -98,6 +99,11 @@ const sendBookingEmail = async({
 
 
     await transporter.sendMail(mailOptions);
+
+    // Delete invoice after successful email
+    if(invoicePath &&  fs.existsSync(invoicePath)){
+        fs.unlinkSync(invoicePath);
+    }
 
 };
 

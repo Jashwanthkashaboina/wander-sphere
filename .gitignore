@@ -12,4 +12,4 @@ dist/
 build/
 
 
-public/invoices/
+public/invoices/*.pdf

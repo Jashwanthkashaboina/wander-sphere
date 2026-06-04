@@ -4,9 +4,18 @@ const path = require("path");
 
 const generateInvoice = (booking, listing, user) => {
 
+
+    const invoiceDir = path.join(__dirname, "..", "public", "invoices", invoiceName);
+
+    // Create invoices folder if it doesn't exist
+    if(!fs.existsSync(invoiceDir)){
+        fs.mkdirSync(invoiceDir, { recursive: true });
+    }
+
     const invoiceName = `invoice-${booking._id}.pdf`;
 
-    const invoicePath = path.join(__dirname, "..", "public", "invoices", invoiceName);
+    const invoicePath = path.join(invoiceDir, invoiceName);
+
 
     const doc = new PDFDocument();
 
