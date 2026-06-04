@@ -4,6 +4,7 @@ const path = require("path");
 
 const generateInvoice = (booking, listing, user) => {
 
+    const invoiceName = `invoice-${booking._id}.pdf`;
 
     const invoiceDir = path.join(__dirname, "..", "public", "invoices", invoiceName);
 
@@ -12,7 +13,6 @@ const generateInvoice = (booking, listing, user) => {
         fs.mkdirSync(invoiceDir, { recursive: true });
     }
 
-    const invoiceName = `invoice-${booking._id}.pdf`;
 
     const invoicePath = path.join(invoiceDir, invoiceName);
 
