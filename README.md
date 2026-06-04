@@ -1,7 +1,6 @@
 # WanderSphere 🌍
 
 A full-stack travel accommodation booking platform inspired by Airbnb, built using the Nide.js, Express.js, EJS, MongoDB. Users can explore properties, create listings, book stays, make secure payments, and manage their bookings through a personalized profile dashboard.
----
 
 ## ✨ Features
 
