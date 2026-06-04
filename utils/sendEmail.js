@@ -102,8 +102,12 @@ const sendBookingEmail = async({
 
     console.log("Before Email");
 
-    await transporter.sendMail(mailOptions);
-
+    try{
+        await transporter.sendMail(mailOptions);
+    } catch(err){
+        console.log('Email confirmation Error : ', err);
+    }
+    
     console.log("After Email");
 
 };
