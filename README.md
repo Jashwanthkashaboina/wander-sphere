@@ -1,102 +1,148 @@
-# WanderSphere 🌍
+<div align="center">
 
-A full-stack travel accommodation booking platform inspired by Airbnb, built using the Node.js, Express.js, EJS, MongoDB. Users can explore properties, create listings, book stays, make secure payments, and manage their bookings through a personalized profile dashboard.
+# 🌍 WanderSphere
+
+### Discover. Book. Explore.
+
+*A full-stack travel accommodation booking platform inspired by Airbnb, built with Node.js, Express.js, EJS, and MongoDB.*
+
+</div>
+
+---
 
 ## ✨ Features
 
-### 🔐 Authentication & Authorization
-
-* User Registration & Login
-* Google OAuth 2.0 Authentication
-* Session-based Authentication using Passport.js
-* Protected Routes & Authorization Middleware
-
-### 🏠 Listing Management
-
-* Create, Edit, Delete Listings
-* Upload Property Images
-* View Listing Details
-* Owner-Based Access Control
-
-### ⭐ Reviews & Ratings
-
-* Add Reviews & Ratings
-* Delete Own Reviews
-* Review Validation using Joi
-
-### 📅 Booking System
-
-* Date-based Booking
-* Automatic Price Calculation
-* Cancel Bookings
-* Booking Status Tracking
-
-### 💳 Payment Integration
-
-* Razorpay Payment Gateway Integration
-* Secure Order Creation
-* Payment Signature Verification (HMAC SHA256)
-* Booking Confirmation after Successful Payment
-
-### 📄 Invoice & Notifications
-
-* Automatic PDF Invoice Generation
-* Email Confirmation Workflow
-* Booking Reference Generation
-
-### 👤 User Profile
-
-* View Personal Information
-* Track Booking History
-* Manage Existing Bookings
+- 🔐 Secure Authentication with Passport.js & Google OAuth 2.0
+- 🏠 Create, edit, delete, and manage property listings
+- 📷 Upload and manage property images
+- ⭐ Add, view, and manage reviews & ratings
+- 📅 Date-based booking system with automatic price calculation
+- 💳 Secure online payments using Razorpay
+- 📄 Automatic PDF invoice generation
+- 📧 Email booking confirmations with reference IDs
+- 👤 Personalized user profile with booking history
+- 🔒 Role-based authorization and protected routes
 
 ---
 
 ## 🛠️ Tech Stack
 
 ### Frontend
-
-* HTML
-* CSS
-* Bootstrap 5
-* JavaScript
-* EJS
+- HTML5
+- CSS3
+- Bootstrap 5
+- JavaScript
+- EJS
 
 ### Backend
-
-* Node.js
-* Express.js
+- Node.js
+- Express.js
 
 ### Database
-
-* MongoDB Atlas
-* Mongoose
+- MongoDB Atlas
+- Mongoose
 
 ### Authentication
+- Passport.js
+- Passport Local
+- Google OAuth 2.0
 
-* Passport.js
-* Passport Local
-* Google OAuth 2.0
-
-### Payments
-
-* Razorpay
+### Payment Gateway
+- Razorpay
 
 ### Additional Tools
-
-* Nodemailer
-* PDFKit
-* Joi
-* Cloudinary
-* Multer
-* Connect-Flash
+- Cloudinary
+- Multer
+- Nodemailer
+- PDFKit
+- Joi
+- Connect-Flash
 
 ---
 
-## 📂 Project Structure
+# 📈 Application Workflow
 
-```bash
-WanderSphere
+```mermaid
+flowchart TD
+
+A[User Visits WanderSphere] --> B{Authenticate}
+
+B -->|Sign Up / Login| C[Passport.js Authentication]
+B -->|Google OAuth| D[Google OAuth 2.0]
+
+C --> E[Browse Listings]
+D --> E
+
+E --> F[View Property Details]
+
+F --> G{Book Hotel / listing?}
+
+G -->|Yes| H[Select Dates]
+
+H --> I[Calculate Total Price]
+
+I --> J[Razorpay Payment]
+
+J --> K{Payment Success?}
+
+K -->|Yes| L[Create Booking]
+
+L --> M[Generate Invoice]
+
+M --> N[Send Confirmation Email]
+
+N --> O[Booking Added to User Profile]
+```
+
+---
+
+# 🏗️ System Architecture
+
+```mermaid
+flowchart LR
+
+subgraph Client
+User[User]
+Browser[EJS Frontend]
+end
+
+subgraph Backend
+Express[Express.js Server]
+Passport[Passport.js]
+Controllers[Controllers]
+end
+
+subgraph Database
+Mongo[(MongoDB Atlas)]
+end
+
+subgraph Services
+Cloudinary[Cloudinary]
+Razorpay[Razorpay]
+Mail[Nodemailer]
+PDF[PDFKit]
+end
+
+User --> Browser
+
+Browser --> Express
+
+Express --> Passport
+Express --> Controllers
+
+Controllers --> Mongo
+Controllers --> Cloudinary
+Controllers --> Razorpay
+Controllers --> Mail
+Controllers --> PDF
+```
+
+---
+
+## 📁 Project Structure
+
+```text
+WanderSphere/
 │
 ├── controllers/
 ├── models/
@@ -104,23 +150,23 @@ WanderSphere
 ├── routes/
 ├── utils/
 ├── views/
-├── .gitignore
 ├── app.js
 ├── cloudConfig.js
 ├── middleware.js
-├── package_lock.json
+├── schema.js
 ├── package.json
-└── schema.js
+└── README.md
 ```
 
 ---
 
 ## 🔒 Security Features
 
-* Password Hashing using Passport-Local-Mongoose
-* Route Protection Middleware
-* Input Validation using Joi
-* Payment Signature Verification
-* Session Management with MongoDB Store
-
+- 🔐 Session-based authentication using Passport.js
+- 🔑 Google OAuth 2.0 authentication
+- 🛡️ Route protection and authorization middleware
+- ✅ Input validation using Joi
+- 💳 Razorpay payment signature verification (HMAC SHA256)
+- 🔒 Password hashing using Passport-Local-Mongoose
+- 🍪 Secure session management with MongoDB Store
 ---
