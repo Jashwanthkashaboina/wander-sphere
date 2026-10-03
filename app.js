@@ -27,6 +27,12 @@ const listingRouter = require("./routes/listing.js");
 const reviewRouter = require("./routes/review.js");
 const userRouter = require("./routes/user.js");
 const bookingRouter = require('./routes/booking.js');
+const preferenceRouter = require("./routes/preferences.js");
+const poiRouter = require("./routes/poi.js");
+const tripRouter = require("./routes/trips.js");
+const itineraryRouter = require("./routes/itinerary.js");
+
+
 const { access } = require('fs');
 
 
@@ -152,6 +158,10 @@ app.use("/listings/:id/reviews",reviewRouter);
 app.use("/",userRouter);
 app.use('/listings/:id/bookings', bookingRouter);
 app.use('/bookings', bookingRouter);
+app.use("/api/preferences", preferenceRouter);
+app.use("/api/pois", poiRouter);
+app.use("/api/trips", tripRouter);
+app.use("/api/trips", itineraryRouter);
 
 
 app.use((req,res,next)=>{
