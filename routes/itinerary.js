@@ -28,7 +28,9 @@ router.post("/:tripId/itinerary", isLoggedIn, async (req, res) => {
 
 
         const hotel = await Listing.findById(trip.hotelId);
-
+        console.log("HOTEL:", hotel.title);
+        console.log("HOTEL COORDINATES:", hotel.geometry.coordinates);
+        
         if (!hotel) {
             return res.status(404).json({
                 message: "Hotel not found"
@@ -222,6 +224,52 @@ router.post("/:tripId/itinerary", isLoggedIn, async (req, res) => {
 
             message: "Unable to generate itinerary"
 
+        });
+
+    }
+
+});
+
+
+
+router.get("/:tripId/itinerary", isLoggedIn, async (req, res) => {
+
+    try {
+
+        const trip = await Trip.findOne({
+            _id: req.params.tripId,
+            userId: req.user._id
+        });
+
+        if (!trip) {
+            return res.status(404).json({
+                message: "Trip not found"
+            });
+        }
+
+        const itinerary = await Itinerary.findOne({
+            tripId: trip._id
+        }).populate("days.activities.poiId");
+
+        if (!itinerary) {
+            return res.status(404).json({
+                message: "Itinerary not found"
+            });
+        }
+
+        res.json({
+            itinerary
+        });
+
+    } catch (err) {
+
+        console.error(
+            "Fetch Itinerary Error:",
+            err
+        );
+
+        res.status(500).json({
+            message: "Unable to fetch itinerary"
         });
 
     }

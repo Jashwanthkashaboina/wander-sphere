@@ -8,10 +8,11 @@ mongoose.connect(process.env.ATLASDB_URL)
 
         console.log("MongoDB connected");
 
-        const testHotel = new Listing({
+        const hotel = new Listing({
+
             title: "Test Hyderabad Hotel",
 
-            description: "Temporary hotel for WanderSphere itinerary testing.",
+            description: "Temporary hotel for WanderSphere itinerary testing",
 
             price: 3000,
 
@@ -19,24 +20,27 @@ mongoose.connect(process.env.ATLASDB_URL)
 
             country: "India",
 
-            image: {
-                url: "https://images.unsplash.com/photo-1566073771259-6a8506099945",
-                filename: "test-hyderabad-hotel"
-            },
-
             geometry: {
                 type: "Point",
                 coordinates: [78.4740, 17.3600]
-            }
+            },
+
+            image: {
+                url: "https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=800&q=60",
+                filename: "test-hotel"
+            },
+
+            owner: new mongoose.Types.ObjectId("69037323e45de26b36b2e1fd")
+
         });
 
-        await testHotel.save();
+        await hotel.save();
 
-        console.log("Test hotel created successfully!");
-        console.log("Hotel ID:", testHotel._id);
-        console.log("Coordinates:", testHotel.geometry.coordinates);
+        console.log("Test Hyderabad Hotel created:");
+        console.log(hotel);
 
         await mongoose.connection.close();
+
     })
     .catch(err => {
         console.error("Error:", err);

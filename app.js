@@ -31,6 +31,8 @@ const preferenceRouter = require("./routes/preferences.js");
 const poiRouter = require("./routes/poi.js");
 const tripRouter = require("./routes/trips.js");
 const itineraryRouter = require("./routes/itinerary.js");
+const disruptionRouter = require("./routes/disruption.js");
+const { isLoggedIn } = require("./middleware.js");
 
 
 const { access } = require('fs');
@@ -162,7 +164,20 @@ app.use("/api/preferences", preferenceRouter);
 app.use("/api/pois", poiRouter);
 app.use("/api/trips", tripRouter);
 app.use("/api/trips", itineraryRouter);
+app.use("/api/trips", disruptionRouter);
 
+
+//==== ROUTES ==== //
+app.get("/trips/new", isLoggedIn, (req, res) => {
+    res.render("trips/new");
+});
+
+
+app.get("/trips/:tripId", isLoggedIn, (req, res) => {
+    res.render("trips/show", {
+        tripId: req.params.tripId
+    });
+});
 
 app.use((req,res,next)=>{
     next(new ExpressError(404,"Page Not Found"));

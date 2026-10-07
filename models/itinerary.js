@@ -45,7 +45,11 @@ const itinerarySchema = new Schema({
     totalCost: {
         type: Number,
         default: 0
-    }
+    },
+    stabilityScore: {
+        type: Number,
+        default: 1
+    },
 
 }, { timestamps: true });
 

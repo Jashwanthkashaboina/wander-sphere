@@ -29,6 +29,8 @@ module.exports.showListings = async(req,res)=>{
     const coordinates = (listing.geometry && listing.geometry.coordinates.length)
         ? listing.geometry.coordinates
         : [74.8723, 31.6340]; // e.g., Amritsar
+        
+    console.log("OWNER:", listing.owner);
     res.render("listings/show.ejs",{ listing });
 };
 

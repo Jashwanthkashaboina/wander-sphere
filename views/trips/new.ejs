@@ -1,0 +1,423 @@
+<% layout("/layouts/boilerplate") %>
+
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+
+        <div class="mb-4">
+            <h1>Plan Your Trip</h1>
+            <p class="text-muted">
+                Tell us your preferences and we'll create a personalized itinerary.
+            </p>
+        </div>
+
+        <form id="tripForm">
+
+            <!-- Trip Details -->
+            <div class="card p-4 mb-4">
+
+                <h4 class="mb-3">Trip Details</h4>
+
+                <div class="mb-3">
+                    <label for="destination" class="form-label">
+                        Destination
+                    </label>
+
+                    <input
+                        type="text"
+                        class="form-control"
+                        id="destination"
+                        placeholder="e.g. Hyderabad"
+                        required
+                    >
+                </div>
+
+                <div class="row">
+
+                    <div class="col-md-6 mb-3">
+                        <label for="startDate" class="form-label">
+                            Start Date
+                        </label>
+
+                        <input
+                            type="date"
+                            class="form-control"
+                            id="startDate"
+                            required
+                        >
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label for="endDate" class="form-label">
+                            End Date
+                        </label>
+
+                        <input
+                            type="date"
+                            class="form-control"
+                            id="endDate"
+                            required
+                        >
+                    </div>
+
+                </div>
+
+                <div class="row">
+
+                    <div class="col-md-6 mb-3">
+                        <label for="travellers" class="form-label">
+                            Number of Travellers
+                        </label>
+
+                        <input
+                            type="number"
+                            class="form-control"
+                            id="travellers"
+                            min="1"
+                            value="1"
+                            required
+                        >
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label for="totalBudget" class="form-label">
+                            Total Budget (₹)
+                        </label>
+
+                        <input
+                            type="number"
+                            class="form-control"
+                            id="totalBudget"
+                            min="0"
+                            placeholder="e.g. 10000"
+                            required
+                        >
+                    </div>
+
+                </div>
+
+                <div class="mb-3">
+                    <label for="hotelId" class="form-label">
+                        Hotel ID
+                    </label>
+
+                    <input
+                        type="text"
+                        class="form-control"
+                        id="hotelId"
+                        placeholder="Enter selected hotel ID"
+                        required
+                    >
+
+                    <small class="text-muted">
+                        This will later be automatically selected from your hotel booking.
+                    </small>
+                </div>
+
+            </div>
+
+
+            <!-- Preferences -->
+            <div class="card p-4 mb-4">
+
+                <h4 class="mb-3">Travel Preferences</h4>
+
+                <div class="mb-3">
+                    <label for="interests" class="form-label">
+                        Interests
+                    </label>
+
+                    <input
+                        type="text"
+                        class="form-control"
+                        id="interests"
+                        placeholder="e.g. nature, history"
+                    >
+
+                    <small class="text-muted">
+                        Separate multiple interests with commas.
+                    </small>
+                </div>
+
+
+                <div class="mb-3">
+                    <label for="budgetLevel" class="form-label">
+                        Budget Level
+                    </label>
+
+                    <select
+                        class="form-select"
+                        id="budgetLevel"
+                        required
+                    >
+                        <option value="">Select budget level</option>
+                        <option value="low">Low</option>
+                        <option value="medium">Medium</option>
+                        <option value="high">High</option>
+                    </select>
+                </div>
+
+
+                <div class="mb-3">
+                    <label for="travelPace" class="form-label">
+                        Travel Pace
+                    </label>
+
+                    <select
+                        class="form-select"
+                        id="travelPace"
+                        required
+                    >
+                        <option value="">Select travel pace</option>
+                        <option value="relaxed">Relaxed</option>
+                        <option value="moderate">Moderate</option>
+                        <option value="packed">Packed</option>
+                    </select>
+                </div>
+
+
+                <div class="mb-3">
+                    <label for="preferredActivities" class="form-label">
+                        Preferred Activities
+                    </label>
+
+                    <input
+                        type="text"
+                        class="form-control"
+                        id="preferredActivities"
+                        placeholder="e.g. sightseeing, nature"
+                    >
+
+                    <small class="text-muted">
+                        Separate multiple activities with commas.
+                    </small>
+                </div>
+
+
+                <div class="mb-3">
+                    <label for="mustVisitPlaces" class="form-label">
+                        Must-Visit Places
+                    </label>
+
+                    <input
+                        type="text"
+                        class="form-control"
+                        id="mustVisitPlaces"
+                        placeholder="e.g. Charminar, Golconda Fort"
+                    >
+
+                    <small class="text-muted">
+                        Separate multiple places with commas.
+                    </small>
+                </div>
+
+            </div>
+
+
+            <button type="submit" class="btn btn-danger w-100">
+                Plan My Trip
+            </button>
+
+        </form>
+
+    </div>
+</div>
+
+
+<script>
+
+document.getElementById("tripForm").addEventListener("submit", async function(event) {
+
+    event.preventDefault();
+
+    try {
+
+        // --------------------------------
+        // 1. Collect Trip Data
+        // --------------------------------
+
+        const tripData = {
+
+            destination:
+                document.getElementById("destination").value,
+
+            startDate:
+                document.getElementById("startDate").value,
+
+            endDate:
+                document.getElementById("endDate").value,
+
+            travellers:
+                Number(
+                    document.getElementById("travellers").value
+                ),
+
+            totalBudget:
+                Number(
+                    document.getElementById("totalBudget").value
+                ),
+
+            hotelId:
+                document.getElementById("hotelId").value
+
+        };
+
+
+        // --------------------------------
+        // 2. Create Trip
+        // --------------------------------
+
+        const tripResponse = await fetch("/api/trips", {
+
+            method: "POST",
+
+            headers: {
+                "Content-Type": "application/json"
+            },
+
+            body: JSON.stringify(tripData)
+
+        });
+
+
+        const tripResult = await tripResponse.json();
+
+
+        if (!tripResponse.ok) {
+
+            throw new Error(
+                tripResult.message || "Unable to create trip"
+            );
+
+        }
+
+
+        console.log("Trip created:", tripResult);
+
+
+        // --------------------------------
+        // 3. Collect Preference Data
+        // --------------------------------
+
+        const preferenceData = {
+
+            interests:
+                document.getElementById("interests").value
+                    .split(",")
+                    .map(item => item.trim())
+                    .filter(item => item !== ""),
+
+            budgetLevel:
+                document.getElementById("budgetLevel").value,
+
+            travelPace:
+                document.getElementById("travelPace").value,
+
+            preferredActivities:
+                document.getElementById("preferredActivities").value
+                    .split(",")
+                    .map(item => item.trim())
+                    .filter(item => item !== ""),
+
+            mustVisitPlaces:
+                document.getElementById("mustVisitPlaces").value
+                    .split(",")
+                    .map(item => item.trim())
+                    .filter(item => item !== "")
+
+        };
+
+
+        // --------------------------------
+        // 4. Save Preferences
+        // --------------------------------
+
+        const preferenceResponse = await fetch(
+            "/api/preferences",
+            {
+
+                method: "POST",
+
+                headers: {
+                    "Content-Type": "application/json"
+                },
+
+                body: JSON.stringify(preferenceData)
+
+            }
+        );
+
+
+        const preferenceResult =
+            await preferenceResponse.json();
+
+
+        if (!preferenceResponse.ok) {
+
+            throw new Error(
+                preferenceResult.message ||
+                "Failed to save preferences"
+            );
+
+        }
+
+
+        console.log(
+            "Preference saved:",
+            preferenceResult
+        );
+
+
+        // --------------------------------
+        // 5. Generate Itinerary
+        // --------------------------------
+
+        const itineraryResponse = await fetch(
+            `/api/trips/${tripResult.trip._id}/itinerary`,
+            {
+                method: "POST"
+            }
+        );
+
+
+        const itineraryResult =
+            await itineraryResponse.json();
+
+
+        if (!itineraryResponse.ok) {
+
+            throw new Error(
+                itineraryResult.message ||
+                "Failed to generate itinerary"
+            );
+
+        }
+
+
+        console.log(
+            "Itinerary generated:",
+            itineraryResult
+        );
+
+
+        // --------------------------------
+        // 6. Redirect to Trip Page
+        // --------------------------------
+
+        window.location.href =
+            `/trips/${tripResult.trip._id}`;
+
+
+    } catch (error) {
+
+        console.error(
+            "Trip Planning Error:",
+            error
+        );
+
+        alert(error.message);
+
+    }
+
+});
+
+</script>

@@ -3,31 +3,37 @@ const Preference = require("../models/preference.js");
 
 // Create preferences
 module.exports.createPreference = async (req, res) => {
-    const existingPreference = await Preference.findOne({
-        userId: req.user._id
-    });
+    try {
 
-    if (existingPreference) {
-        return res.status(400).json({
-            message: "Preferences already exist"
+        const preference = await Preference.findOneAndUpdate(
+            { userId: req.user._id },
+            {
+                userId: req.user._id,
+                interests: req.body.interests,
+                budgetLevel: req.body.budgetLevel,
+                travelPace: req.body.travelPace,
+                preferredActivities: req.body.preferredActivities,
+                mustVisitPlaces: req.body.mustVisitPlaces
+            },
+            {
+                new: true,
+                upsert: true
+            }
+        );
+
+        res.status(200).json({
+            message: "Preferences saved successfully",
+            preference
+        });
+
+    } catch (err) {
+
+        console.error("Preference Error:", err);
+
+        res.status(500).json({
+            message: "Unable to save preferences"
         });
     }
-
-    const preference = new Preference({
-        userId: req.user._id,
-        interests: req.body.interests,
-        budgetLevel: req.body.budgetLevel,
-        travelPace: req.body.travelPace,
-        preferredActivities: req.body.preferredActivities,
-        mustVisitPlaces: req.body.mustVisitPlaces
-    });
-
-    await preference.save();
-
-    res.status(201).json({
-        message: "Preferences saved successfully",
-        preference
-    });
 };
 
 
