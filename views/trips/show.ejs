@@ -33,13 +33,10 @@ async function loadItinerary() {
             );
         }
 
-
         const itinerary = result.itinerary;
 
 
-        // --------------------------------
-        // Trip Header
-        // --------------------------------
+        // Trip Summary
 
         document.getElementById("tripDetails").innerHTML = `
 
@@ -68,13 +65,11 @@ async function loadItinerary() {
         `;
 
 
-        // --------------------------------
-        // Itinerary
-        // --------------------------------
-
         const container =
             document.getElementById("itineraryContainer");
 
+
+        // Days
 
         itinerary.days.forEach((day, index) => {
 
@@ -91,43 +86,60 @@ async function loadItinerary() {
 
             } else {
 
-                activitiesHTML = day.activities.map(
-                    activity => `
+                activitiesHTML = day.activities.map(activity => `
 
-                        <div class="card mb-3 p-3">
+                    <div class="card mb-3 p-3">
 
-                            <h5>
-                                ${activity.poiId.name}
-                            </h5>
+                        <h5>
+                            ${activity.poiId.name}
+                        </h5>
 
-                            <p class="mb-1">
-                                <strong>Category:</strong>
-                                ${activity.poiId.category}
-                            </p>
+                        <p class="mb-1">
+                            <strong>Category:</strong>
+                            ${activity.poiId.category}
+                        </p>
 
-                            <p class="mb-1">
-                                <strong>Time:</strong>
-                                ${formatTime(activity.startTime)}
-                                -
-                                ${formatTime(activity.endTime)}
-                            </p>
+                        <p class="mb-1">
+                            <strong>Time:</strong>
+                            ${formatTime(activity.startTime)}
+                            -
+                            ${formatTime(activity.endTime)}
+                        </p>
 
-                            <p class="mb-1">
-                                <strong>Travel Time:</strong>
-                                ${activity.travelTime} minutes
-                            </p>
+                        <p class="mb-1">
+                            <strong>Travel Time:</strong>
+                            ${activity.travelTime} minutes
+                        </p>
 
-                            <p class="mb-0">
-                                <strong>Cost:</strong>
-                                ₹${activity.estimatedCost}
-                            </p>
+                        <p class="mb-3">
+                            <strong>Cost:</strong>
+                            ₹${activity.estimatedCost}
+                        </p>
+                        
+                        
+                        <button
+                            class="btn btn-outline-danger btn-sm"
+                            onclick="removeActivity(
+                                '${tripId}',
+                                '${activity.poiId._id}'
+                            )"
+                        >
+                            Remove Activity
+                        </button>
 
-                        </div>
-
-                    `
-                ).join("");
+                    </div>
+                `).join("");
 
             }
+
+            const regenerateButton = `
+                                    <button
+                                        class="btn btn-outline-primary btn-sm mb-3"
+                                        onclick="regenerateDay(${index})"
+                                    >
+                                        Regenerate Day
+                                    </button>
+            `;
 
 
             container.innerHTML += `
@@ -141,6 +153,8 @@ async function loadItinerary() {
                     <p class="text-muted">
                         ${new Date(day.date).toDateString()}
                     </p>
+                    
+                    ${regenerateButton}
 
                     ${activitiesHTML}
 
@@ -181,18 +195,79 @@ async function loadItinerary() {
 }
 
 
-// --------------------------------
-// Convert minutes → readable time
-// --------------------------------
+
+async function removeActivity(tripId, poiId) {
+
+    const confirmed = confirm(
+        "Are you sure you want to remove this activity?"
+    );
+
+    if (!confirmed) {
+        return;
+    }
+
+
+    try {
+
+        const response = await fetch(
+            `/api/trips/${tripId}/itinerary/${poiId}`,
+            {
+                method: "DELETE"
+            }
+        );
+
+
+        const result = await response.json();
+
+
+        if (!response.ok) {
+
+            alert(
+                result.message ||
+                "Unable to remove activity"
+            );
+
+            return;
+
+        }
+
+
+        alert("Activity removed successfully");
+
+
+        // Reload updated itinerary
+
+        location.reload();
+
+
+    } catch (error) {
+
+        console.error(
+            "Remove Activity Error:",
+            error
+        );
+
+        alert(
+            "Something went wrong while removing the activity"
+        );
+
+    }
+
+}
+
+
 
 function formatTime(minutes) {
 
     const hours = Math.floor(minutes / 60);
+
     const mins = minutes % 60;
 
-    const period = hours >= 12 ? "PM" : "AM";
+    const period =
+        hours >= 12 ? "PM" : "AM";
 
-    let displayHour = hours % 12;
+    let displayHour =
+        hours % 12;
 
     if (displayHour === 0) {
         displayHour = 12;
@@ -200,6 +275,34 @@ function formatTime(minutes) {
 
     return `${displayHour}:${String(mins).padStart(2, "0")} ${period}`;
 
+}
+
+
+async function regenerateDay(dayIndex) {
+
+    const confirmed = confirm(
+        `Regenerate Day ${dayIndex + 1}?`
+    );
+
+    if (!confirmed) return;
+
+    const response = await fetch(
+        `/api/trips/${tripId}/itinerary/${dayIndex}/regenerate`,
+        {
+            method: "POST"
+        }
+    );
+
+    const result = await response.json();
+
+    if (!response.ok) {
+        alert(result.message || "Unable to regenerate day");
+        return;
+    }
+
+    alert("Day regenerated successfully");
+
+    location.reload();
 }
 
 
