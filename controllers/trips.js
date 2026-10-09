@@ -1,4 +1,5 @@
 const Trip = require("../models/trip.js");
+const Listing = require("../models/listing.js");
 
 
 module.exports.createTrip = async (req, res) => {
@@ -67,4 +68,45 @@ module.exports.getTrip = async (req, res) => {
             message: "Unable to fetch trip"
         });
     }
+};
+
+module.exports.getHotels = async (req, res) => {
+
+    try {
+
+        const trip = await Trip.findOne({
+            _id: req.params.tripId,
+            userId: req.user._id
+        });
+
+        if (!trip) {
+            return res.status(404).json({
+                message: "Trip not found"
+            });
+        }
+
+        const hotels = await Listing.find({
+            location: {
+                $regex: trip.destination,
+                $options: "i"
+            }
+        });
+
+        res.json({
+            hotels
+        });
+
+    } catch (err) {
+
+        console.error(
+            "Hotel Fetch Error:",
+            err
+        );
+
+        res.status(500).json({
+            message: "Unable to fetch hotels"
+        });
+
+    }
+
 };
