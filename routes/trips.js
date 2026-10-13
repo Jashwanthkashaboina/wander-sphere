@@ -2,7 +2,8 @@ const express = require("express");
 const router = express.Router();
 
 const { isLoggedIn } = require("../middleware.js");
-const { createTrip, getTrip, getHotels } = require("../controllers/trips.js");
+const { createTrip, getTrip, getHotels, getHotelRecomendation, selectHotel } = require("../controllers/trips.js");
+
 
 // Create a trip
 router.post("/", isLoggedIn, createTrip);
@@ -12,6 +13,10 @@ router.post("/", isLoggedIn, createTrip);
 router.get("/:tripId", isLoggedIn, getTrip);
 
 router.get("/:tripId/hotels", isLoggedIn, getHotels);
+
+router.get("/:tripId/recommended-hotels", isLoggedIn, getHotelRecomendation);
+
+router.put("/:tripId/hotel", isLoggedIn, selectHotel);
 
 
 module.exports = router;

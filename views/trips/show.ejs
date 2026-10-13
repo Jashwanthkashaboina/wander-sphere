@@ -4,9 +4,17 @@
 
     <div id="tripDetails">
         <h1>My Trip</h1>
-        <p class="text-muted">Loading your itinerary...</p>
+        <p class="text-muted">Loading your trip...</p>
     </div>
 
+    <!-- Hotel Recommendations -->
+    <div id="hotelRecommendations" class="mb-5"></div>
+
+    <!-- Show Selected Hotels -->
+    <div id="selectedHotel" class="mb-5"></div>
+
+
+    <!-- Itinerary -->
     <div id="itineraryContainer"></div>
 
 </div>
@@ -16,6 +24,10 @@
 
 const tripId = "<%= tripId %>";
 
+
+// =====================================================
+// LOAD TRIP + ITINERARY
+// =====================================================
 
 async function loadItinerary() {
 
@@ -69,6 +81,11 @@ async function loadItinerary() {
             document.getElementById("itineraryContainer");
 
 
+        // Clear container before rendering
+
+        container.innerHTML = "";
+
+
         // Days
 
         itinerary.days.forEach((day, index) => {
@@ -115,8 +132,7 @@ async function loadItinerary() {
                             <strong>Cost:</strong>
                             ₹${activity.estimatedCost}
                         </p>
-                        
-                        
+
                         <button
                             class="btn btn-outline-danger btn-sm"
                             onclick="removeActivity(
@@ -128,17 +144,19 @@ async function loadItinerary() {
                         </button>
 
                     </div>
+
                 `).join("");
 
             }
 
+
             const regenerateButton = `
-                                    <button
-                                        class="btn btn-outline-primary btn-sm mb-3"
-                                        onclick="regenerateDay(${index})"
-                                    >
-                                        Regenerate Day
-                                    </button>
+                <button
+                    class="btn btn-outline-primary btn-sm mb-3"
+                    onclick="regenerateDay(${index})"
+                >
+                    Regenerate Day
+                </button>
             `;
 
 
@@ -153,7 +171,7 @@ async function loadItinerary() {
                     <p class="text-muted">
                         ${new Date(day.date).toDateString()}
                     </p>
-                    
+
                     ${regenerateButton}
 
                     ${activitiesHTML}
@@ -196,7 +214,248 @@ async function loadItinerary() {
 
 
 
-async function removeActivity(tripId, poiId) {
+// =====================================================
+// LOAD HOTEL RECOMMENDATIONS
+// =====================================================
+
+async function loadHotelRecommendations() {
+
+    try {
+
+        const response = await fetch(
+            `/api/trips/${tripId}/recommended-hotels`
+        );
+
+        const result = await response.json();
+
+        if (!response.ok) {
+
+            throw new Error(
+                result.message ||
+                "Unable to fetch hotel recommendations"
+            );
+
+        }
+
+
+        const container =
+            document.getElementById(
+                "hotelRecommendations"
+            );
+
+
+        if (
+            !result.recommendations ||
+            result.recommendations.length === 0
+        ) {
+
+            container.innerHTML = `
+
+                <div class="alert alert-warning">
+                    No suitable hotels found for this trip.
+                </div>
+
+            `;
+
+            return;
+
+        }
+
+
+        let hotelsHTML = `
+
+            <h2 class="mb-3">
+                Recommended Hotels
+            </h2>
+
+            <p class="text-muted">
+                Hotels ranked based on your budget and itinerary.
+            </p>
+
+            <div class="row">
+
+        `;
+
+
+        result.recommendations.forEach(
+            recommendation => {
+
+                const hotel =
+                    recommendation.hotel;
+
+
+                hotelsHTML += `
+
+                    <div class="col-md-6 col-lg-4 mb-4">
+
+                        <div class="card h-100 shadow-sm">
+
+                            <img
+                                src="${hotel.image.url}"
+                                class="card-img-top"
+                                alt="${hotel.title}"
+                                style="
+                                    height: 220px;
+                                    object-fit: cover;
+                                "
+                            >
+
+                            <div class="card-body">
+
+                                <h5 class="card-title">
+                                    ${hotel.title}
+                                </h5>
+
+                                <p class="text-muted mb-2">
+                                    ${hotel.location}
+                                </p>
+
+                                <p class="mb-2">
+
+                                    <strong>
+                                        ₹${hotel.price}
+                                    </strong>
+                                    / night
+
+                                </p>
+
+                                <p class="mb-2">
+
+                                    <strong>
+                                        Recommendation Score:
+                                    </strong>
+
+                                    ${recommendation.score}
+
+                                </p>
+
+                                <p class="mb-3">
+
+                                    <strong>
+                                        Avg Travel Time:
+                                    </strong>
+
+                                    ${recommendation.averageTravelTime}
+                                    minutes
+
+                                </p>
+
+                                <button
+                                    class="btn btn-primary w-100"
+                                    onclick="selectHotel(
+                                        '${hotel._id}'
+                                    )"
+                                >
+                                    Select Hotel
+                                </button>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                `;
+
+            }
+        );
+
+
+        hotelsHTML += `
+            </div>
+        `;
+
+
+        container.innerHTML = hotelsHTML;
+
+
+    } catch (error) {
+
+        console.error(
+            "Hotel Recommendation Error:",
+            error
+        );
+
+        document.getElementById(
+            "hotelRecommendations"
+        ).innerHTML = `
+
+            <div class="alert alert-danger">
+                ${error.message}
+            </div>
+
+        `;
+
+    }
+
+}
+
+
+
+// =====================================================
+// SELECT HOTEL
+// =====================================================
+
+async function selectHotel(hotelId) {
+
+    const confirmed = confirm(
+        "Do you want to select this hotel?"
+    );
+
+    if (!confirmed) {
+        return;
+    }
+
+    try {
+
+        const response = await fetch(
+            `/api/trips/${tripId}/hotel`,
+            {
+                method: "PUT",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({
+                    hotelId: hotelId
+                })
+            }
+        );
+
+        const result = await response.json();
+
+        if (!response.ok) {
+
+            alert(
+                result.message ||
+                "Unable to select hotel"
+            );
+
+            return;
+        }
+
+        alert("Hotel selected successfully!");
+
+        location.reload();
+
+    } catch (error) {
+
+        console.error("Select Hotel Error:", error);
+
+        alert("Something went wrong while selecting the hotel");
+
+    }
+}
+
+
+
+// =====================================================
+// REMOVE ACTIVITY
+// =====================================================
+
+async function removeActivity(
+    tripId,
+    poiId
+) {
 
     const confirmed = confirm(
         "Are you sure you want to remove this activity?"
@@ -235,8 +494,6 @@ async function removeActivity(tripId, poiId) {
         alert("Activity removed successfully");
 
 
-        // Reload updated itinerary
-
         location.reload();
 
 
@@ -247,9 +504,7 @@ async function removeActivity(tripId, poiId) {
             error
         );
 
-        alert(
-            "Something went wrong while removing the activity"
-        );
+        alert("Something went wrong while removing the activity");
 
     }
 
@@ -257,26 +512,40 @@ async function removeActivity(tripId, poiId) {
 
 
 
+// =====================================================
+// FORMAT TIME
+// =====================================================
+
 function formatTime(minutes) {
 
-    const hours = Math.floor(minutes / 60);
+    const hours =
+        Math.floor(minutes / 60);
 
-    const mins = minutes % 60;
+    const mins =
+        minutes % 60;
 
     const period =
         hours >= 12 ? "PM" : "AM";
 
+
     let displayHour =
         hours % 12;
+
 
     if (displayHour === 0) {
         displayHour = 12;
     }
 
+
     return `${displayHour}:${String(mins).padStart(2, "0")} ${period}`;
 
 }
 
+
+
+// =====================================================
+// REGENERATE DAY
+// =====================================================
 
 async function regenerateDay(dayIndex) {
 
@@ -284,7 +553,10 @@ async function regenerateDay(dayIndex) {
         `Regenerate Day ${dayIndex + 1}?`
     );
 
-    if (!confirmed) return;
+    if (!confirmed) {
+        return;
+    }
+
 
     const response = await fetch(
         `/api/trips/${tripId}/itinerary/${dayIndex}/regenerate`,
@@ -293,19 +565,133 @@ async function regenerateDay(dayIndex) {
         }
     );
 
-    const result = await response.json();
+
+    const result =
+        await response.json();
+
 
     if (!response.ok) {
-        alert(result.message || "Unable to regenerate day");
+
+        alert(
+            result.message ||
+            "Unable to regenerate day"
+        );
+
         return;
+
     }
 
-    alert("Day regenerated successfully");
+
+    alert(
+        "Day regenerated successfully"
+    );
+
 
     location.reload();
+
 }
 
 
+
+async function loadSelectedHotel() {
+
+    try {
+
+        const response = await fetch(
+            `/api/trips/${tripId}`
+        );
+
+        const trip = await response.json();
+
+        if (!response.ok) {
+            throw new Error(
+                trip.message || "Unable to fetch trip"
+            );
+        }
+
+        const container =
+            document.getElementById("selectedHotel");
+
+        if (!trip.hotelId) {
+            container.innerHTML = "";
+            return;
+        }
+
+        const hotel = trip.hotelId;
+
+        container.innerHTML = `
+
+            <h2 class="mb-3">
+                Selected Hotel
+            </h2>
+
+            <div class="card p-3">
+
+                <div class="row align-items-center">
+
+                    <div class="col-md-4">
+
+                        <img
+                            src="${hotel.image.url}"
+                            class="img-fluid rounded"
+                            style="height: 200px; width: 100%; object-fit: cover;"
+                            alt="${hotel.title}"
+                        >
+
+                    </div>
+
+                    <div class="col-md-8">
+
+                        <h3>
+                            ${hotel.title}
+                        </h3>
+
+                        <p class="text-muted">
+                            ${hotel.location}
+                        </p>
+
+                        <p>
+                            <strong>
+                                ₹${hotel.price}
+                            </strong>
+                            / night
+                        </p>
+
+                        <span class="badge bg-success">
+                            Hotel Selected
+                        </span>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        `;
+
+    } catch (error) {
+
+        console.error(
+            "Selected Hotel Error:",
+            error
+        );
+
+    }
+
+}
+
+
+
+// =====================================================
+// INITIAL LOAD
+// =====================================================
+
 loadItinerary();
+
+loadHotelRecommendations();
+
+loadSelectedHotel();
+
+
 
 </script>
