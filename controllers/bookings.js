@@ -1,5 +1,10 @@
-
-
+const Booking = require('../models/booking');
+const Listing = require('../models/listing');
+const razorpay = require('../utils/razorpay');
+const crypto = require('crypto');
+const sendBookingEmail = require('../utils/sendEmail');
+const generateInvoice = require('../utils/generateInvoice');
+const Trip = require("../models/trip.js");
 
 
 module.exports.createBooking = async(req, res) =>{
@@ -14,7 +19,7 @@ module.exports.createBooking = async(req, res) =>{
 
         }
 
-        const { checkIn, checkOut, guests } = req.body;
+        const { checkIn, checkOut, guests, tripId } = req.body;
         
         const checkInDate = new Date(checkIn);
 
@@ -38,6 +43,7 @@ module.exports.createBooking = async(req, res) =>{
         const newBooking = new Booking({
             listing: listing._id,
             user: req.user._id,
+            tripId,
             checkIn,
             checkOut,
             guests,
@@ -45,6 +51,7 @@ module.exports.createBooking = async(req, res) =>{
         });
 
         await newBooking.save();
+
         console.log('Booking Done!');
 
         res.json({
@@ -121,6 +128,13 @@ module.exports.verifyPayment = async(req, res) => {
             booking.orderId = razorpay_order_id;
 
             await booking.save();
+
+            const trip = await Trip.findById(booking.tripId);
+
+            if (trip) {
+                trip.status = "active";
+                await trip.save();
+            }
 
             const invoicePath = generateInvoice(
                 booking,

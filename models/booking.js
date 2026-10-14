@@ -14,6 +14,11 @@ const bookingSchema = new Schema({
         required: true,
     },
 
+    tripId: {
+        type: Schema.Types.ObjectId,
+        ref: "Trip",
+    },
+
     checkIn: {
         type: Date,
         required: true,

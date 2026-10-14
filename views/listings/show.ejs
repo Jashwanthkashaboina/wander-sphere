@@ -375,6 +375,11 @@
 
                 const formData = new FormData(bookingForm);
 
+                const tripId = new URLSearchParams(window.location.search).get("tripId");
+
+                formData.append("tripId", tripId);
+
+
                 const bookingResponse = await fetch(
                     bookingForm.action,
                     {

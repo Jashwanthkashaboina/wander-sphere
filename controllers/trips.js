@@ -255,3 +255,41 @@ module.exports.selectHotel = async (req, res) => {
 
     }
 };
+
+
+
+module.exports.checkWeatherDisruption = async (req, res) => {
+
+    try {
+
+        const trip = await Trip.findOne({
+            _id: req.params.tripId,
+            userId: req.user._id
+        });
+
+        if (!trip) {
+            return res.status(404).json({
+                message: "Trip not found"
+            });
+        }
+
+        const itinerary = await Itinerary.findOne({tripId: trip._id}).populate("days.activities.poiId");
+
+        if (!itinerary) {
+            return res.status(404).json({
+                message: "Itinerary not found"
+            });
+        }
+
+        console.log("Itinerary found:");
+        console.log(itinerary);
+
+    } catch (err) {
+
+        console.error("Weather Disruption Error:", err);
+
+        res.status(500).json({
+            message: "Unable to check weather disruption"
+        });
+    }
+};
