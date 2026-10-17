@@ -2,6 +2,9 @@ const Trip = require("../models/trip.js");
 const Listing = require("../models/listing.js");
 const calculateHotelScore = require("../utils/hotelScorer.js");
 const Itinerary = require("../models/itinerary.js");
+const getWeather = require("../utils/getWeather.js");
+const detectWeatherDisruption = require("../utils/weatherDisruptionDetector.js");
+const Disruption = require("../models/disruption.js");
 
 module.exports.createTrip = async (req, res) => {
 
@@ -281,8 +284,75 @@ module.exports.checkWeatherDisruption = async (req, res) => {
             });
         }
 
+
+        
+        const pois = [];
+
+        for (const day of itinerary.days) {
+
+            for (const activity of day.activities) {
+
+                if (activity.poiId) {
+                    pois.push(activity.poiId);
+                }
+
+            }
+        }
+
+        console.log("POIs in itinerary:");
+        console.log(pois);
+
+
+        let disruptedPOIs = [];
+
+        for (const poi of pois) {
+
+            // const weather = await getWeather(
+            //     poi.location.latitude,
+            //     poi.location.longitude
+            // );
+
+            const weather = {
+                condition: "Thunderstorm"
+            };
+
+            const disrupted = detectWeatherDisruption(
+                weather,
+                poi
+            );
+
+            if (disrupted) {
+                disruptedPOIs.push(poi);
+                await Disruption.create({
+                    tripId: trip._id,
+                    type: "weather",
+                    severity: "high",
+                    affectedPOI: poi._id,
+                    description: `Weather disruption detected at ${poi.name}`
+                });
+            }
+
+            console.log(
+                poi.name,
+                weather,
+                "Disrupted:",
+                disrupted
+            );
+        }
+
+        console.log("Disrupted POIs:", disruptedPOIs);
+        if (disruptedPOIs.length === 0) {
+            return res.json({
+                message: "No weather disruption detected"
+            });
+        }
+
         console.log("Itinerary found:");
         console.log(itinerary);
+
+        res.json({
+            message: "Weather disruption check completed"
+        });
 
     } catch (err) {
 
